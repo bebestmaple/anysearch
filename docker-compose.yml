@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  anysearch:
+    build: .
+    container_name: anysearch-mcp
+    restart: unless-stopped
+    ports:
+      - "8123:8123"   # HTTP API /v1/search
+      - "8124:8124"   # MCP‑SSE 远程访问端口
+    env_file:
+      - .env
+    # 同时启动 HTTP + MCP‑SSE，对外可访问
+    command: ["python", "main.py", "--all-http"]
+    # environment:
+    #   ANYSEARCH_HTTP_BIND: "0.0.0.0"
+    #   ANYSEARCH_HTTP_PORT: 8123
+    #   ANYSEARCH_MCP_SSE_BIND: "0.0.0.0"
+    #   ANYSEARCH_MCP_SSE_PORT: 8124
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'       # 限制使用最多 50% 的 CPU
+          memory: 512M      # 限制内存为 512MB
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
